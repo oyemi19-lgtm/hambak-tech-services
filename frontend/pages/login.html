@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+Login | HAMBAK TECH & SERVICES
+</title>
+
+<link
+rel="stylesheet"
+href="../css/style.css"
+>
+
+<link
+rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+>
+
+<style>
+
+/* LOGIN PAGE */
+
+.auth-section{
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:120px 8%;
+background:linear-gradient(
+135deg,
+#081120,
+#0d47a1
+);
+}
+
+.auth-container{
+width:100%;
+max-width:500px;
+background:white;
+padding:40px;
+border-radius:20px;
+box-shadow:0 15px 40px rgba(0,0,0,0.2);
+}
+
+.auth-header{
+text-align:center;
+margin-bottom:30px;
+}
+
+.auth-header h1{
+font-size:2.5rem;
+color:#0f172a;
+margin-bottom:10px;
+}
+
+.auth-header p{
+color:#555;
+}
+
+.auth-form{
+display:flex;
+flex-direction:column;
+gap:20px;
+}
+
+.input-group{
+position:relative;
+}
+
+.input-group i{
+position:absolute;
+left:15px;
+top:50%;
+transform:translateY(-50%);
+color:#888;
+}
+
+.input-group input{
+width:100%;
+padding:15px 15px 15px 45px;
+border:1px solid #ddd;
+border-radius:10px;
+font-size:1rem;
+outline:none;
+transition:0.3s;
+box-sizing:border-box;
+}
+
+.input-group input:focus{
+border-color:#0d47a1;
+}
+
+.auth-btn{
+padding:15px;
+border:none;
+border-radius:10px;
+background:#0d47a1;
+color:white;
+font-size:1rem;
+cursor:pointer;
+transition:0.3s;
+}
+
+.auth-btn:hover{
+background:#1565c0;
+}
+
+.auth-switch{
+text-align:center;
+margin-top:20px;
+color:#555;
+}
+
+.auth-switch span{
+color:#0d47a1;
+cursor:pointer;
+font-weight:600;
+}
+
+.demo-info{
+margin-top:30px;
+padding:20px;
+background:#f1f5f9;
+border-radius:10px;
+font-size:0.95rem;
+color:#475569;
+line-height:1.8;
+}
+
+.forgot-password{
+text-align:right;
+margin-top:-10px;
+}
+
+.forgot-password a{
+color:#0d47a1;
+text-decoration:none;
+font-weight:bold;
+font-size:0.95rem;
+}
+
+.forgot-password a:hover{
+text-decoration:underline;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<header class="navbar">
+
+<div class="logo">
+
+<span>HAMBAK</span>
+
+<small>TECH & SERVICES</small>
+
+</div>
+
+<nav class="nav-links">
+
+<a href="../index.html">Home</a>
+<a href="services.html">Services</a>
+<a href="shop.html">Shop</a>
+<a href="contact.html">Contact</a>
+
+</nav>
+
+</header>
+
+<!-- AUTH -->
+
+<section class="auth-section">
+
+<div class="auth-container">
+
+<!-- HEADER -->
+
+<div class="auth-header">
+
+<h1 id="formTitle">
+Customer Login
+</h1>
+
+<p>
+Access your dashboard & services
+</p>
+
+</div>
+
+<!-- FORM -->
+
+<form class="auth-form" id="authForm">
+
+<!-- NAME FIELD -->
+
+<div class="input-group">
+
+<i class="fa-solid fa-user"></i>
+
+<input
+type="text"
+placeholder="Full Name"
+id="nameField"
+style="display:none"
+>
+
+</div>
+
+<!-- EMAIL -->
+
+<div class="input-group">
+
+<i class="fa-solid fa-envelope"></i>
+
+<input
+type="email"
+placeholder="Email Address"
+required
+>
+
+</div>
+
+<!-- PASSWORD -->
+
+<div class="input-group">
+
+<i class="fa-solid fa-lock"></i>
+
+<input
+type="password"
+placeholder="Password"
+required
+>
+
+</div>
+
+<!-- FORGOT PASSWORD -->
+
+<div class="forgot-password">
+
+<a href="forgot-password.html">
+
+Forgot Password?
+
+</a>
+
+</div>
+
+<!-- BUTTON -->
+
+<button
+type="submit"
+class="auth-btn"
+id="submitBtn"
+>
+
+Login
+
+</button>
+
+</form>
+
+<!-- SWITCH -->
+
+<div class="auth-switch">
+
+<span id="toggleForm">
+Create New Account
+</span>
+
+</div>
+
+<!-- DEMO -->
+
+<div class="demo-info">
+
+<strong>Demo Features:</strong>
+
+<br><br>
+
+✔ Customer Login UI  
+✔ Registration UI  
+✔ Forgot Password System  
+✔ Backend Ready Structure  
+✔ Future JWT Authentication  
+✔ MongoDB Compatible  
+✔ Admin Login Expandable  
+
+</div>
+
+</div>
+
+</section>
+
+<!-- WHATSAPP -->
+
+<a
+href="https://wa.me/2349155104724"
+class="whatsapp-float"
+>
+
+<i class="fa-brands fa-whatsapp"></i>
+
+</a>
+
+<!-- SCRIPT -->
+
+<script>
+
+const toggleForm =
+document.getElementById("toggleForm");
+
+const formTitle =
+document.getElementById("formTitle");
+
+const submitBtn =
+document.getElementById("submitBtn");
+
+const nameField =
+document.getElementById("nameField");
+
+const authForm =
+document.getElementById("authForm");
+
+/* EMAIL INPUT */
+
+const emailInput =
+document.querySelector(
+'input[type="email"]'
+);
+
+/* PASSWORD INPUT */
+
+const passwordInput =
+document.querySelector(
+'input[type="password"]'
+);
+
+let loginMode = true;
+
+/* =========================
+TOGGLE LOGIN / REGISTER
+========================= */
+
+toggleForm.addEventListener("click", () => {
+
+loginMode = !loginMode;
+
+if(loginMode){
+
+formTitle.innerHTML =
+"Customer Login";
+
+submitBtn.innerHTML =
+"Login";
+
+toggleForm.innerHTML =
+"Create New Account";
+
+nameField.style.display =
+"none";
+
+}else{
+
+formTitle.innerHTML =
+"Create Account";
+
+submitBtn.innerHTML =
+"Register";
+
+toggleForm.innerHTML =
+"Already Have Account?";
+
+nameField.style.display =
+"block";
+
+}
+
+});
+
+/* =========================
+FORM SUBMIT
+========================= */
+
+authForm.addEventListener(
+"submit",
+async (e)=>{
+
+e.preventDefault();
+
+/* USER DATA */
+
+const userData = {
+
+name:nameField.value,
+
+email:emailInput.value,
+
+password:passwordInput.value,
+
+username:
+emailInput.value.split("@")[0],
+
+phone:"0000000000"
+
+};
+
+/* =========================
+REGISTER
+========================= */
+
+if(!loginMode){
+
+const data =
+await registerUser(userData);
+
+if(data.success){
+
+alert(
+"Registration Successful"
+);
+
+window.location.reload();
+
+}else{
+
+alert(data.message);
+
+}
+
+}
+
+/* =========================
+LOGIN
+========================= */
+
+else{
+
+const loginData = {
+
+email:emailInput.value,
+
+password:passwordInput.value
+
+};
+
+const data =
+await loginUser(loginData);
+
+if(data.success){
+
+alert(
+"Login Successful"
+);
+
+/* SAVE USER */
+
+localStorage.setItem(
+"hambak_user",
+JSON.stringify(data.user)
+);
+
+/* REDIRECT */
+
+window.location.href =
+"dashboard.html";
+
+}else{
+
+alert(data.message);
+
+}
+
+}
+
+});
+</script>
+
+<script src="../js/api.js"></script>
+
+</body>
+
+</html>
