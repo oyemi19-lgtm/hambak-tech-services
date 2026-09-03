@@ -1,5 +1,4 @@
 import Service from "../models/Service.js";
-import { inMemoryServices } from "../config/inMemoryStore.js";
 
 /* =========================
 CREATE SERVICE
@@ -7,22 +6,10 @@ CREATE SERVICE
 
 export const createService = async (req, res) => {
   try {
-    let service;
-    try {
-      service = await Service.create({
-        ...req.body,
-        createdBy: req.user?._id
-      });
-    } catch {
-      service = {
-        _id: `srv_${Date.now()}`,
-        ...req.body,
-        createdBy: req.user?._id,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-      inMemoryServices.unshift(service);
-    }
+    const service = await Service.create({
+      ...req.body,
+      createdBy: req.user?._id
+    });
 
     res.status(201).json({
       success: true,
@@ -43,16 +30,7 @@ GET ALL SERVICES
 
 export const getServices = async (req, res) => {
   try {
-    let services = [];
-    try {
-      services = await Service.find().sort({ createdAt: -1 });
-    } catch {
-      services = [];
-    }
-
-    if (!services || services.length === 0) {
-      services = inMemoryServices;
-    }
+    const services = await Service.find().sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
@@ -60,10 +38,9 @@ export const getServices = async (req, res) => {
       services
     });
   } catch (error) {
-    res.status(200).json({
-      success: true,
-      count: inMemoryServices.length,
-      services: inMemoryServices
+    res.status(500).json({
+      success: false,
+      message: error.message
     });
   }
 };
@@ -74,18 +51,7 @@ GET SINGLE SERVICE
 
 export const getSingleService = async (req, res) => {
   try {
-    let service = null;
-    try {
-      service = await Service.findById(req.params.id);
-    } catch {
-      service = null;
-    }
-
-    if (!service) {
-      service = inMemoryServices.find(
-        (s) => s._id === req.params.id || s.slug === req.params.id
-      );
-    }
+    const service = await Service.findById(req.params.id);
 
     if (!service) {
       return res.status(404).json({
@@ -112,23 +78,14 @@ UPDATE SERVICE
 
 export const updateService = async (req, res) => {
   try {
-    let service;
-    try {
-      service = await Service.findByIdAndUpdate(
-        req.params.id,
-        req.body,
-        {
-          new: true,
-          runValidators: true
-        }
-      );
-    } catch {
-      const idx = inMemoryServices.findIndex((s) => s._id === req.params.id);
-      if (idx !== -1) {
-        inMemoryServices[idx] = { ...inMemoryServices[idx], ...req.body };
-        service = inMemoryServices[idx];
+    const service = await Service.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true,
+        runValidators: true
       }
-    }
+    );
 
     if (!service) {
       return res.status(404).json({
@@ -156,27 +113,16 @@ DELETE SERVICE
 
 export const deleteService = async (req, res) => {
   try {
-    let found = false;
-    try {
-      const service = await Service.findById(req.params.id);
-      if (service) {
-        await service.deleteOne();
-        found = true;
-      }
-    } catch {
-      const idx = inMemoryServices.findIndex((s) => s._id === req.params.id);
-      if (idx !== -1) {
-        inMemoryServices.splice(idx, 1);
-        found = true;
-      }
-    }
+    const service = await Service.findById(req.params.id);
 
-    if (!found) {
+    if (!service) {
       return res.status(404).json({
         success: false,
         message: "Service not found"
       });
     }
+
+    await service.deleteOne();
 
     res.status(200).json({
       success: true,

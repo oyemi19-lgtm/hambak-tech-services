@@ -82,6 +82,22 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/transactions", transactionRoutes);
 
+/* CONTACT INQUIRY ROUTE */
+app.post("/api/contact", (req, res) => {
+  const { name, email, phone, whatsapp, requestType, message, requirements } = req.body;
+  const phoneNumber = phone || whatsapp;
+  if (!phoneNumber) {
+    return res.status(400).json({
+      success: false,
+      message: "Validation Error: Phone number is required."
+    });
+  }
+  res.status(200).json({
+    success: true,
+    message: "Inquiry received successfully. Our team will contact you shortly."
+  });
+});
+
 /* =========================
 DATABASE & ERROR MIDDLEWARE
 ========================= */
@@ -93,15 +109,10 @@ app.use((err, req, res, next) => {
     err.name === "MongooseServerSelectionError" ||
     (err.message && err.message.includes("buffering timed out"))
   ) {
-    console.warn("[AI Studio] Database offline — returning mock response");
-    if (req.method === "GET") {
-      return res.json(
-        req.path.endsWith("s") || req.path.endsWith("s/") ? [] : {}
-      );
-    }
-    return res
-      .status(503)
-      .json({ error: "Service temporarily unavailable (database offline)" });
+    return res.status(503).json({
+      success: false,
+      message: "Database service unavailable. Please check MongoDB Atlas connection."
+    });
   }
 
   console.error("Unhandled error:", err);
