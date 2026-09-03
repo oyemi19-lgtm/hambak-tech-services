@@ -421,7 +421,7 @@ Fill in your details to register your account.
 
 </div>
 
-<form class="register-form">
+<form class="register-form" id="registerForm">
 
 <!-- FULL NAME -->
 
@@ -437,6 +437,7 @@ Full Name
 
 <input
 type="text"
+id="fullName"
 placeholder="Enter full name"
 required
 >
@@ -459,6 +460,7 @@ Username
 
 <input
 type="text"
+id="username"
 placeholder="Choose username"
 required
 >
@@ -481,6 +483,7 @@ Email Address
 
 <input
 type="email"
+id="email"
 placeholder="Enter email address"
 required
 >
@@ -503,6 +506,7 @@ Phone Number
 
 <input
 type="tel"
+id="phone"
 placeholder="Enter phone number"
 required
 >
@@ -523,21 +527,21 @@ Select Role
 
 <i class="fa-solid fa-user-tag"></i>
 
-<select required>
+<select id="role" required>
 
 <option value="">
 Choose account type
 </option>
 
-<option>
+<option value="customer">
 Customer
 </option>
 
-<option>
+<option value="student">
 Student
 </option>
 
-<option>
+<option value="admin">
 Admin
 </option>
 
@@ -713,6 +717,7 @@ Login Here
 
 </div>
 
+<script src="../js/api.js"></script>
 <script>
 
 function togglePassword(id, element){
@@ -739,6 +744,47 @@ icon.classList.add("fa-eye");
 
 }
 
+}
+
+const regForm = document.getElementById("registerForm");
+if (regForm) {
+  regForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    const userData = {
+      name: document.getElementById("fullName").value.trim(),
+      username: document.getElementById("username").value.trim(),
+      email: document.getElementById("email").value.trim(),
+      phone: document.getElementById("phone").value.trim(),
+      role: (document.getElementById("role").value || "customer").toLowerCase(),
+      password: password
+    };
+
+    try {
+      const data = await registerUser(userData);
+      if (data && data.success) {
+        if (data.token) {
+          saveToken(data.token);
+        }
+        if (data.user) {
+          localStorage.setItem("hambak_user", JSON.stringify(data.user));
+        }
+        alert("Registration Successful!");
+        window.location.href = "dashboard.html";
+      } else {
+        alert(data?.message || "Registration failed. Please try again.");
+      }
+    } catch (err) {
+      alert("Registration error: " + err.message);
+    }
+  });
 }
 
 </script>

@@ -4,6 +4,8 @@ import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import fileUpload from "express-fileupload";
+import path from "path";
+import fs from "fs";
 
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
@@ -35,105 +37,108 @@ MIDDLEWARE
 ========================= */
 
 app.use(express.json());
-
-app.use(
-express.urlencoded({
-extended:true
-})
-);
-
+app.use(express.urlencoded({ extended: true }));
 app.use(cors());
-
 app.use(morgan("dev"));
-
 app.use(cookieParser());
-
-app.use(fileUpload({
-useTempFiles:true
-}));
+app.use(fileUpload({ useTempFiles: true }));
 
 /* =========================
 STATIC UPLOADS
 ========================= */
 
-app.use(
-"/uploads",
-express.static("uploads")
-);
+const uploadsDir = path.join(process.cwd(), "uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+app.use("/uploads", express.static(uploadsDir));
 
 /* =========================
-TEST ROUTE
+FRONTEND STATIC ASSETS
 ========================= */
 
-app.get("/", (req,res)=>{
+const frontendDir = path.join(process.cwd(), "frontend");
+app.use(express.static(frontendDir));
+app.use("/frontend", express.static(frontendDir));
 
-res.status(200).json({
+/* =========================
+API HEALTH ROUTE
+========================= */
 
-success:true,
-
-message:
-"HAMBAK TECH & SERVICES Backend Running Successfully"
-
-});
-
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    service: "HAMBAK TECH & SERVICES API"
+  });
 });
 
 /* =========================
 API ROUTES
 ========================= */
 
-app.use(
-"/api/auth",
-authRoutes
-);
-
-app.use(
-  "/api/services",
-  serviceRoutes
-);
-
-app.use(
-  "/api/upload",
-  uploadRoutes
-);
-
-app.use(
-  "/api/admin",
-  adminRoutes
-);
-
-app.use(
-  "/api/transactions",
-  transactionRoutes
-);
+app.use("/api/auth", authRoutes);
+app.use("/api/services", serviceRoutes);
+app.use("/api/upload", uploadRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/transactions", transactionRoutes);
 
 /* =========================
-404 HANDLER
+DATABASE & ERROR MIDDLEWARE
 ========================= */
 
-app.use((req,res)=>{
+app.use((err, req, res, next) => {
+  if (
+    err.name === "MongooseError" ||
+    err.name === "MongoNetworkError" ||
+    err.name === "MongooseServerSelectionError" ||
+    (err.message && err.message.includes("buffering timed out"))
+  ) {
+    console.warn("[AI Studio] Database offline — returning mock response");
+    if (req.method === "GET") {
+      return res.json(
+        req.path.endsWith("s") || req.path.endsWith("s/") ? [] : {}
+      );
+    }
+    return res
+      .status(503)
+      .json({ error: "Service temporarily unavailable (database offline)" });
+  }
 
-res.status(404).json({
-
-success:false,
-
-message:"Route Not Found"
-
+  console.error("Unhandled error:", err);
+  res.status(500).json({
+    success: false,
+    message: err.message || "Internal server error"
+  });
 });
 
+/* =========================
+404 FOR UNMATCHED API
+========================= */
+
+app.use("/api/*", (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Route Not Found"
+  });
+});
+
+/* =========================
+FALLBACK TO FRONTEND
+========================= */
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(frontendDir, "index.html"));
 });
 
 /* =========================
 SERVER
 ========================= */
 
-const PORT =
-process.env.PORT || 5000;
+const PORT = 3000;
+const HOST = "0.0.0.0";
 
-app.listen(PORT, ()=>{
-
-console.log(
-`Server running on port ${PORT}`
-);
-
+app.listen(PORT, HOST, () => {
+  console.log(`HAMBAK TECH & SERVICES server running on http://${HOST}:${PORT}`);
 });
+
+export default app;

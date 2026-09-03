@@ -1,0 +1,8 @@
+{
+  "name": "HAMBAK TECH & SERVICES",
+  "description": "Professional Digital Solutions, Online Registration, NIN Services, Printing, POS, Training, Recharge & VTU Services in Lagos, Nigeria.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
