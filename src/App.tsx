@@ -12,6 +12,7 @@ import { ContactSection } from "./components/ContactSection";
 import { Footer } from "./components/Footer";
 import { AuthModal } from "./components/AuthModal";
 import { DashboardModal } from "./components/DashboardModal";
+import { AdminDashboardModal } from "./components/AdminDashboardModal";
 import { ReceiptModal } from "./components/ReceiptModal";
 import { Service, ReceiptRecord } from "./types";
 import { MessageSquare } from "lucide-react";
@@ -20,6 +21,7 @@ export function App() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [dashboardOpen, setDashboardOpen] = useState(false);
+  const [adminDashboardOpen, setAdminDashboardOpen] = useState(false);
   const [activeReceipt, setActiveReceipt] = useState<ReceiptRecord | null>(null);
   const [inquiryService, setInquiryService] = useState<Service | null>(null);
 
@@ -56,6 +58,7 @@ export function App() {
         <Navbar
           onOpenAuth={handleOpenAuth}
           onOpenDashboard={() => setDashboardOpen(true)}
+          onOpenAdminDashboard={() => setAdminDashboardOpen(true)}
         />
 
         <main className="flex-1">
@@ -127,6 +130,14 @@ export function App() {
           onClose={() => setDashboardOpen(false)}
           onShowReceipt={(receipt) => setActiveReceipt(receipt)}
           onNavigateToPayment={handleNavigateToPayment}
+          onOpenAdminDashboard={() => setAdminDashboardOpen(true)}
+        />
+
+        {/* Master Admin CRUD & Operations Center Modal */}
+        <AdminDashboardModal
+          isOpen={adminDashboardOpen}
+          onClose={() => setAdminDashboardOpen(false)}
+          onShowReceipt={(receipt) => setActiveReceipt(receipt)}
         />
 
         {/* Official Verified Receipt Modal */}

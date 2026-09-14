@@ -1,5 +1,6 @@
 import { AuthResponse, ContactInquiry, Service, User } from "../types";
 import { fallbackServices } from "../data/servicesData";
+import { firestoreService } from "./firestoreService";
 
 const API_BASE_URL: string =
   (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_URL) ||
@@ -116,6 +117,16 @@ export const authAPI = {
 export const servicesAPI = {
   async getServices(): Promise<Service[]> {
     try {
+      // 1. Prioritize live Firestore database entries (managed directly by Admin Panel)
+      const firestoreList = await firestoreService.getServices();
+      if (firestoreList && firestoreList.length > 0) {
+        return firestoreList;
+      }
+    } catch {
+      // Continue to external endpoint or fallback
+    }
+
+    try {
       const response = await fetch(`${API_BASE_URL}/services`, {
         method: "GET",
         headers: { "Content-Type": "application/json" }
@@ -126,15 +137,7 @@ export const servicesAPI = {
       const data = await response.json();
       const rawList: Service[] = Array.isArray(data) ? data : (data && Array.isArray(data.services) ? data.services : []);
       if (rawList.length > 0) {
-        const liveTitles = new Set(rawList.map((s) => (s.title || s.name || "").toLowerCase()));
-        const merged = [...rawList];
-        for (const fb of fallbackServices) {
-          const fbTitle = (fb.title || fb.name || "").toLowerCase();
-          if (!liveTitles.has(fbTitle)) {
-            merged.push(fb);
-          }
-        }
-        return merged;
+        return rawList;
       }
       return fallbackServices;
     } catch {

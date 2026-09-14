@@ -17,12 +17,20 @@ import {
 interface NavbarProps {
   onOpenAuth: (initialMode?: "login" | "register") => void;
   onOpenDashboard?: () => void;
+  onOpenAdminDashboard?: () => void;
   onSelectService?: (category?: string) => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenDashboard }) => {
+export const Navbar: React.FC<NavbarProps> = ({
+  onOpenAuth,
+  onOpenDashboard,
+  onOpenAdminDashboard,
+}) => {
   const { user, isAuthenticated, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const isAdmin =
+    user?.role === "admin" || user?.email === "fatimohmusbau34@gmail.com";
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-md">
@@ -81,7 +89,17 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenDashboard }) =
         </nav>
 
         {/* Right CTA / Auth */}
-        <div className="hidden lg:flex items-center gap-4">
+        <div className="hidden lg:flex items-center gap-3">
+          {isAdmin && onOpenAdminDashboard && (
+            <button
+              onClick={onOpenAdminDashboard}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-400/15 text-amber-300 hover:bg-amber-400 hover:text-slate-950 border border-amber-400/40 shadow-sm transition-all"
+            >
+              <Shield className="h-3.5 w-3.5" />
+              <span>Admin Panel</span>
+            </button>
+          )}
+
           {isAuthenticated && user ? (
             <div className="flex items-center gap-2">
               <button
@@ -94,7 +112,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenDashboard }) =
                 <div>
                   <div className="font-semibold text-slate-100 flex items-center gap-1.5">
                     <span>{user.name.split(" ")[0]}</span>
-                    {user.role === "admin" && (
+                    {isAdmin && (
                       <span className="inline-flex items-center gap-0.5 px-1 py-0.5 text-[9px] rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">
                         <Shield className="h-2 w-2" /> Admin
                       </span>
@@ -216,6 +234,19 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onOpenDashboard }) =
           </a>
 
           <div className="pt-3 border-t border-slate-800 flex flex-col gap-2">
+            {isAdmin && onOpenAdminDashboard && (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenAdminDashboard();
+                }}
+                className="w-full py-2.5 px-3 rounded-xl text-xs font-bold bg-amber-400/15 text-amber-300 border border-amber-400/40 flex items-center justify-center gap-2"
+              >
+                <Shield className="h-4 w-4" />
+                <span>Admin Operations Control Center</span>
+              </button>
+            )}
+
             {isAuthenticated && user ? (
               <div className="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800">
                 <button

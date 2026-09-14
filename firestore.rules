@@ -38,16 +38,21 @@ service cloud.firestore {
     match /users/{userId} {
       allow get: if isValidId(userId) && (isOwner(userId) || isAdmin());
       allow list: if isAdmin();
-      allow create: if isValidId(userId) && isOwner(userId) &&
-        incoming().uid == userId &&
-        incoming().name is string && incoming().name.size() <= 150 &&
-        incoming().walletBalance is number &&
-        (incoming().role in ['customer', 'student'] || isAdmin());
+      allow create: if isValidId(userId) && (
+        isAdmin() || (
+          isOwner(userId) &&
+          incoming().uid == userId &&
+          incoming().name is string && incoming().name.size() <= 150 &&
+          incoming().walletBalance is number &&
+          (incoming().role in ['customer', 'student'] || isAdmin())
+        )
+      );
       allow update: if isValidId(userId) && (
         isAdmin() || (
           isOwner(userId) &&
-          incoming().diff(existing()).affectedKeys().hasOnly(['name', 'phone', 'walletBalance', 'updatedAt']) &&
-          incoming().walletBalance is number
+          incoming().diff(existing()).affectedKeys().hasOnly(['name', 'phone', 'walletBalance', 'updatedAt', 'avatar', 'role']) &&
+          incoming().walletBalance is number &&
+          (incoming().role in ['customer', 'student'] || isAdmin())
         )
       );
       allow delete: if isAdmin();
@@ -55,7 +60,8 @@ service cloud.firestore {
 
     // SERVICES COLLECTION (Public catalog, admin managed)
     match /services/{serviceId} {
-      allow read: if isValidId(serviceId);
+      allow get: if isValidId(serviceId);
+      allow list: if true;
       allow create, update, delete: if isAdmin();
     }
 
@@ -63,11 +69,14 @@ service cloud.firestore {
     match /registrations/{registrationId} {
       allow get: if isValidId(registrationId);
       allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
-      allow create: if isValidId(registrationId) &&
-        incoming().applicantName is string && incoming().applicantName.size() <= 150 &&
-        incoming().phone is string && incoming().phone.size() <= 50 &&
-        incoming().fee is number && incoming().fee >= 0 &&
-        incoming().trackingId is string && incoming().trackingId.size() <= 64;
+      allow create: if isValidId(registrationId) && (
+        isAdmin() || (
+          incoming().applicantName is string && incoming().applicantName.size() <= 150 &&
+          incoming().phone is string && incoming().phone.size() <= 50 &&
+          incoming().fee is number && incoming().fee >= 0 &&
+          incoming().trackingId is string && incoming().trackingId.size() <= 64
+        )
+      );
       allow update, delete: if isAdmin();
     }
 
@@ -77,10 +86,13 @@ service cloud.firestore {
         isAdmin() || (isSignedIn() && existing().userId == request.auth.uid)
       );
       allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
-      allow create: if isValidId(transactionId) &&
-        incoming().reference is string && incoming().reference.size() <= 100 &&
-        incoming().amount is number && incoming().amount > 0 &&
-        incoming().paymentMethod is string;
+      allow create: if isValidId(transactionId) && (
+        isAdmin() || (
+          incoming().reference is string && incoming().reference.size() <= 100 &&
+          incoming().amount is number && incoming().amount > 0 &&
+          incoming().paymentMethod is string
+        )
+      );
       allow update, delete: if isAdmin();
     }
 
@@ -90,19 +102,25 @@ service cloud.firestore {
         isAdmin() || (isSignedIn() && existing().userId == request.auth.uid)
       );
       allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
-      allow create: if isValidId(orderId) &&
-        incoming().reference is string && incoming().reference.size() <= 100 &&
-        incoming().amount is number && incoming().amount > 0;
+      allow create: if isValidId(orderId) && (
+        isAdmin() || (
+          incoming().reference is string && incoming().reference.size() <= 100 &&
+          incoming().amount is number && incoming().amount > 0
+        )
+      );
       allow update, delete: if isAdmin();
     }
 
     // INQUIRIES & CONTACT DISPATCH
     match /inquiries/{inquiryId} {
       allow get, list: if isAdmin();
-      allow create: if isValidId(inquiryId) &&
-        incoming().name is string && incoming().name.size() <= 120 &&
-        incoming().phone is string && incoming().phone.size() <= 50 &&
-        incoming().message is string && incoming().message.size() <= 3500;
+      allow create: if isValidId(inquiryId) && (
+        isAdmin() || (
+          incoming().name is string && incoming().name.size() <= 120 &&
+          incoming().phone is string && incoming().phone.size() <= 50 &&
+          incoming().message is string && incoming().message.size() <= 3500
+        )
+      );
       allow update, delete: if isAdmin();
     }
   }

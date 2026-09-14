@@ -28,6 +28,15 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ onSelectForInq
 
   useEffect(() => {
     fetchServicesData();
+
+    const handleUpdate = () => {
+      fetchServicesData();
+    };
+
+    window.addEventListener("hts_services_updated", handleUpdate);
+    return () => {
+      window.removeEventListener("hts_services_updated", handleUpdate);
+    };
   }, []);
 
   const categories = useMemo(() => {

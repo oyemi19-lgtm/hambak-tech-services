@@ -27,6 +27,12 @@ export const VtuSection: React.FC<VtuSectionProps> = ({
   const [activeTab, setActiveTab] = useState<"airtime" | "data" | "electricity" | "cable">("airtime");
   const [network, setNetwork] = useState<string>("MTN");
   const [phone, setPhone] = useState<string>(user?.phone || "");
+
+  React.useEffect(() => {
+    if (user?.phone && !phone) {
+      setPhone(user.phone);
+    }
+  }, [user]);
   const [amount, setAmount] = useState<number>(1000);
   const [dataPlan, setDataPlan] = useState<string>("1GB - 30 Days (₦350)");
   const [meterNumber, setMeterNumber] = useState<string>("");

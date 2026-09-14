@@ -38,6 +38,15 @@ export const RegistrationSection: React.FC<RegistrationSectionProps> = ({
   const [details, setDetails] = useState<string>("");
   const [payWithWallet, setPayWithWallet] = useState<boolean>(false);
 
+  // Sync user info when authenticated
+  React.useEffect(() => {
+    if (user) {
+      if (user.name) setApplicantName(user.name);
+      if (user.email) setEmail(user.email);
+      if (user.phone) setPhone(user.phone);
+    }
+  }, [user]);
+
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [submittedRecord, setSubmittedRecord] = useState<RegistrationRecord | null>(null);
 
