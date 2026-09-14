@@ -124,11 +124,17 @@ export const servicesAPI = {
         return fallbackServices;
       }
       const data = await response.json();
-      if (Array.isArray(data) && data.length > 0) {
-        return data;
-      }
-      if (data && Array.isArray(data.services) && data.services.length > 0) {
-        return data.services;
+      const rawList: Service[] = Array.isArray(data) ? data : (data && Array.isArray(data.services) ? data.services : []);
+      if (rawList.length > 0) {
+        const liveTitles = new Set(rawList.map((s) => (s.title || s.name || "").toLowerCase()));
+        const merged = [...rawList];
+        for (const fb of fallbackServices) {
+          const fbTitle = (fb.title || fb.name || "").toLowerCase();
+          if (!liveTitles.has(fbTitle)) {
+            merged.push(fb);
+          }
+        }
+        return merged;
       }
       return fallbackServices;
     } catch {

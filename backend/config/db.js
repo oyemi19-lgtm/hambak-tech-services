@@ -4,6 +4,8 @@ import mongoose from "mongoose";
 DATABASE CONNECTION
 ========================= */
 
+mongoose.set("bufferCommands", false);
+
 const connectDB = async () => {
   const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
 

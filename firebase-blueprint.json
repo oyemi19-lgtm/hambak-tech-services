@@ -1,0 +1,132 @@
+{
+  "entities": {
+    "userProfile": {
+      "title": "UserProfile",
+      "description": "User profile with role and wallet balance",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "role": { "type": "string", "enum": ["customer", "student", "admin"] },
+        "walletBalance": { "type": "number" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["uid", "name", "email", "role", "walletBalance"]
+    },
+    "service": {
+      "title": "Service",
+      "description": "Official tech services catalog and pricing breakdown",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "inactive"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["title", "category", "status"]
+    },
+    "registration": {
+      "title": "Registration",
+      "description": "Online educational and governmental registration application",
+      "type": "object",
+      "properties": {
+        "trackingId": { "type": "string" },
+        "applicantName": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "regType": { "type": "string", "enum": ["waec", "jamb", "neco", "nysc", "nin", "other"] },
+        "institution": { "type": "string" },
+        "details": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "processing", "approved", "completed"] },
+        "fee": { "type": "number" },
+        "paymentStatus": { "type": "string", "enum": ["pending", "paid", "waived"] },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["trackingId", "applicantName", "email", "phone", "regType", "status", "fee"]
+    },
+    "transaction": {
+      "title": "Transaction",
+      "description": "Payment records, wallet funding, and service invoices",
+      "type": "object",
+      "properties": {
+        "reference": { "type": "string" },
+        "userId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "customerEmail": { "type": "string" },
+        "customerPhone": { "type": "string" },
+        "type": { "type": "string", "enum": ["deposit", "wallet_funding", "service_payment", "vtu", "pos", "registration"] },
+        "amount": { "type": "number" },
+        "paymentMethod": { "type": "string", "enum": ["card", "bank_transfer", "wallet", "pos", "cash"] },
+        "status": { "type": "string", "enum": ["pending", "successful", "failed"] },
+        "description": { "type": "string" },
+        "receiptNumber": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["reference", "type", "amount", "paymentMethod", "status", "createdAt"]
+    },
+    "vtuOrder": {
+      "title": "VtuOrder",
+      "description": "Virtual Top-Up recharge for Airtime, Data, Cable TV, and Electricity",
+      "type": "object",
+      "properties": {
+        "reference": { "type": "string" },
+        "userId": { "type": "string" },
+        "serviceType": { "type": "string", "enum": ["airtime", "data", "electricity", "cable"] },
+        "network": { "type": "string" },
+        "phoneNumber": { "type": "string" },
+        "plan": { "type": "string" },
+        "meterOrCardNumber": { "type": "string" },
+        "amount": { "type": "number" },
+        "status": { "type": "string", "enum": ["successful", "pending", "failed"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["reference", "serviceType", "amount", "status", "createdAt"]
+    },
+    "inquiry": {
+      "title": "Inquiry",
+      "description": "Client order placements and technical inquiries",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "subject": { "type": "string" },
+        "message": { "type": "string" },
+        "status": { "type": "string", "enum": ["new", "reviewed", "resolved"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["name", "email", "phone", "subject", "message"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "userProfile",
+      "description": "Private user profile and wallet records"
+    },
+    "/services/{serviceId}": {
+      "schema": "service",
+      "description": "Available business offerings and service rates"
+    },
+    "/registrations/{registrationId}": {
+      "schema": "registration",
+      "description": "Exam and government registrations"
+    },
+    "/transactions/{transactionId}": {
+      "schema": "transaction",
+      "description": "Financial records and receipt invoices"
+    },
+    "/vtu_orders/{orderId}": {
+      "schema": "vtuOrder",
+      "description": "Utility recharges and top-ups"
+    },
+    "/inquiries/{inquiryId}": {
+      "schema": "inquiry",
+      "description": "Customer contacts and order dispatch messages"
+    }
+  }
+}

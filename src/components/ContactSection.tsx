@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Service, ContactInquiry } from "../types";
-import { contactAPI } from "../services/api";
+import { firestoreService } from "../services/firestoreService";
 import { Send, Phone, Mail, MapPin, MessageSquare, CheckCircle2, AlertCircle, Sparkles } from "lucide-react";
 
 interface ContactSectionProps {
@@ -46,8 +46,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ inquiryService, 
 
     setSubmitting(true);
     try {
-      const response = await contactAPI.submitInquiry(formData);
-      setSuccessMessage(response.message || "Your inquiry has been successfully dispatched to our administration.");
+      await firestoreService.submitInquiry(formData);
+      setSuccessMessage("Your inquiry has been successfully dispatched and securely recorded in our Firestore database. Our team will contact you shortly.");
       setFormData({
         name: "",
         email: "",

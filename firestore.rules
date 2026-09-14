@@ -1,0 +1,109 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'fatimohmusbau34@gmail.com'
+      );
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // USERS COLLECTION
+    match /users/{userId} {
+      allow get: if isValidId(userId) && (isOwner(userId) || isAdmin());
+      allow list: if isAdmin();
+      allow create: if isValidId(userId) && isOwner(userId) &&
+        incoming().uid == userId &&
+        incoming().name is string && incoming().name.size() <= 150 &&
+        incoming().walletBalance is number &&
+        (incoming().role in ['customer', 'student'] || isAdmin());
+      allow update: if isValidId(userId) && (
+        isAdmin() || (
+          isOwner(userId) &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['name', 'phone', 'walletBalance', 'updatedAt']) &&
+          incoming().walletBalance is number
+        )
+      );
+      allow delete: if isAdmin();
+    }
+
+    // SERVICES COLLECTION (Public catalog, admin managed)
+    match /services/{serviceId} {
+      allow read: if isValidId(serviceId);
+      allow create, update, delete: if isAdmin();
+    }
+
+    // REGISTRATIONS (Educational & Government exams/services)
+    match /registrations/{registrationId} {
+      allow get: if isValidId(registrationId);
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isValidId(registrationId) &&
+        incoming().applicantName is string && incoming().applicantName.size() <= 150 &&
+        incoming().phone is string && incoming().phone.size() <= 50 &&
+        incoming().fee is number && incoming().fee >= 0 &&
+        incoming().trackingId is string && incoming().trackingId.size() <= 64;
+      allow update, delete: if isAdmin();
+    }
+
+    // TRANSACTIONS (Financial, wallet funding, and receipts)
+    match /transactions/{transactionId} {
+      allow get: if isValidId(transactionId) && (
+        isAdmin() || (isSignedIn() && existing().userId == request.auth.uid)
+      );
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isValidId(transactionId) &&
+        incoming().reference is string && incoming().reference.size() <= 100 &&
+        incoming().amount is number && incoming().amount > 0 &&
+        incoming().paymentMethod is string;
+      allow update, delete: if isAdmin();
+    }
+
+    // VTU ORDERS (Utility recharges, airtime, data)
+    match /vtu_orders/{orderId} {
+      allow get: if isValidId(orderId) && (
+        isAdmin() || (isSignedIn() && existing().userId == request.auth.uid)
+      );
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isValidId(orderId) &&
+        incoming().reference is string && incoming().reference.size() <= 100 &&
+        incoming().amount is number && incoming().amount > 0;
+      allow update, delete: if isAdmin();
+    }
+
+    // INQUIRIES & CONTACT DISPATCH
+    match /inquiries/{inquiryId} {
+      allow get, list: if isAdmin();
+      allow create: if isValidId(inquiryId) &&
+        incoming().name is string && incoming().name.size() <= 120 &&
+        incoming().phone is string && incoming().phone.size() <= 50 &&
+        incoming().message is string && incoming().message.size() <= 3500;
+      allow update, delete: if isAdmin();
+    }
+  }
+}
